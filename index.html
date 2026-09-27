@@ -1,4 +1,1189 @@
 <!DOCTYPE html>
-<html>
-<body><h1>Coming Soon...</h1></body>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFIR Forensic Investigation Report // Host CORP-1-US</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter, Orbitron, JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#060911',
+                            card: '#0d1322',
+                            cardHover: '#131b2e',
+                            border: '#1e293b',
+                            borderHighlight: '#334155',
+                            amber: '#FF6B00',
+                            amberGlow: 'rgba(255, 107, 0, 0.25)',
+                            cyan: '#06B6D4',
+                            cyanGlow: 'rgba(6, 182, 212, 0.2)',
+                            red: '#EF4444',
+                            green: '#10B981',
+                            slate: '#94A3B8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        orbitron: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #060911;
+            background-image: 
+                radial-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
+                radial-gradient(rgba(255, 107, 0, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px, 64px 64px;
+            color: #CBD5E1;
+        }
+
+        /* Technical HUD Container Cards */
+        .hud-card {
+            background: linear-gradient(135deg, rgba(13, 19, 34, 0.95) 0%, rgba(9, 14, 26, 0.98) 100%);
+            border: 1px solid #1E293B;
+            position: relative;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hud-card:hover {
+            border-color: #334155;
+        }
+
+        /* Notched Technical Corner Reticles */
+        .reticle-corner::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 8px; height: 8px;
+            border-top: 2px solid #FF6B00;
+            border-left: 2px solid #FF6B00;
+            z-index: 10;
+        }
+        .reticle-corner::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 8px; height: 8px;
+            border-bottom: 2px solid #06B6D4;
+            border-right: 2px solid #06B6D4;
+            z-index: 10;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #060911; }
+        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF6B00; }
+
+        /* Code Block Styling */
+        pre code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.825rem;
+            line-height: 1.5;
+        }
+
+        /* Custom Animations */
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.98); }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 3s infinite ease-in-out;
+        }
+
+        /* Table Text Wrapping & Clear Readability */
+        table th, table td {
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-sm text-slate-300 min-h-screen flex flex-col justify-between">
+
+    <!-- TOP GLOBAL HEADER BAR -->
+    <header class="sticky top-0 z-50 bg-cyber-bg/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Branding & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded bg-cyber-card border border-cyber-amber/40 flex items-center justify-center text-cyber-amber shadow-[0_0_15px_rgba(255,107,0,0.2)]">
+                    <i class="fa-solid fa-shield-cat text-xl animate-pulse-subtle"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-orbitron font-black text-white text-base tracking-wider">DATAV // DFIR INCIDENT REPORT</span>
+                        <span class="bg-red-500/10 border border-red-500/30 text-red-400 font-mono text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">CRITICAL BREACH</span>
+                    </div>
+                    <div class="font-mono text-xs text-slate-400 flex items-center gap-3 mt-0.5">
+                        <span><strong class="text-slate-200">HOST:</strong> CORP-1-US</span>
+                        <span class="text-slate-600">•</span>
+                        <span><strong class="text-slate-200">IP:</strong> 10.0.0.112</span>
+                        <span class="text-slate-600">•</span>
+                        <span><strong class="text-slate-200">CASE ID:</strong> INC-2026-9231</span>
+                    </div>
+                </div>
+                <div class="h-8 w-px bg-slate-800 hidden md:block"></div>
+                <a href="#containment-playbook" class="bg-cyber-amber/10 border border-cyber-amber/50 hover:bg-cyber-amber/20 text-cyber-amber px-3 py-1.5 rounded transition flex items-center gap-2 font-bold text-xs">
+                    <i class="fa-solid fa-terminal"></i>
+                    <span>ACTION PLAYBOOK</span>
+                </a>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT WRAPPER -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-grow space-y-6">
+
+        <!-- NAV TABS FOR REPORT SECTIONS -->
+        <nav class="flex flex-wrap border-b border-slate-800 gap-2 pb-2 font-mono text-xs">
+            <a href="#executive-summary" class="bg-cyber-card border border-slate-700 text-white px-4 py-2 rounded-t hover:border-cyber-amber transition flex items-center gap-2">
+                <i class="fa-solid fa-file-contract text-cyber-amber"></i> Part 1: Executive Briefing & Lifecycle
+            </a>
+            <a href="#forensic-telemetry" class="bg-cyber-card border border-slate-800 text-slate-400 px-4 py-2 rounded-t hover:text-white hover:border-cyber-cyan transition flex items-center gap-2">
+                <i class="fa-solid fa-network-wired text-cyber-cyan"></i> Part 2: Forensic Telemetry & Socket Analysis
+            </a>
+            <a href="#threat-intelligence" class="bg-cyber-card border border-slate-800 text-slate-400 px-4 py-2 rounded-t hover:text-white hover:border-cyber-green transition flex items-center gap-2">
+                <i class="fa-solid fa-vault text-cyber-green"></i> Part 3: MITRE ATT&CK, IoCs & Playbook
+            </a>
+        </nav>
+
+        <!-- TOP METRICS & 3D THREAT CANVAS HERO GRID -->
+        <section class="grid grid-cols-12 gap-4">
+            
+            <!-- Executive Metrics (Left Column) -->
+            <div class="col-span-12 lg:col-span-4 flex flex-col justify-between gap-4">
+                
+                <div class="hud-card reticle-corner p-4 rounded">
+                    <div class="text-xs font-mono text-cyber-amber font-bold tracking-wider uppercase mb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Critical Incident Overview</span>
+                        <span class="text-slate-500">DFIR_SEC_01</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Host <strong class="text-white">CORP-1-US</strong> suffered a high-velocity external breach over MySQL port 3306, leading to administrative privilege escalation, bulk database exfiltration, database deletion, extortion artifact creation, and Application Compatibility Shim persistence.
+                    </p>
+                </div>
+
+                <!-- KPI Summary Blocks -->
+                <div class="grid grid-cols-2 gap-3 font-mono">
+                    <div class="bg-slate-950/80 border border-slate-800 p-3 rounded">
+                        <div class="text-[10px] text-slate-400">ENTRY VECTOR</div>
+                        <div class="text-cyber-amber font-bold text-sm mt-0.5">PORT 3306 WAN</div>
+                        <div class="text-[10px] text-red-400 mt-1"><i class="fa-solid fa-circle-xmark mr-1"></i>0.0.0.0 Binding</div>
+                    </div>
+                    <div class="bg-slate-950/80 border border-slate-800 p-3 rounded">
+                        <div class="text-[10px] text-slate-400">EXFIL IMPACT</div>
+                        <div class="text-red-400 font-bold text-sm mt-0.5">3 SCHEMAS WIPED</div>
+                        <div class="text-[10px] text-slate-400 mt-1">DROP DATABASE</div>
+                    </div>
+                    <div class="bg-slate-950/80 border border-slate-800 p-3 rounded">
+                        <div class="text-[10px] text-slate-400">PERSISTENCE</div>
+                        <div class="text-cyber-cyan font-bold text-sm mt-0.5">SDBINST.EXE</div>
+                        <div class="text-[10px] text-cyber-green mt-1">App Shim Registered</div>
+                    </div>
+                    <div class="bg-slate-950/80 border border-slate-800 p-3 rounded">
+                        <div class="text-[10px] text-slate-400">AUDIT DEFECT</div>
+                        <div class="text-red-400 font-bold text-sm mt-0.5">LOGS WIPED</div>
+                        <div class="text-[10px] text-slate-400 mt-1">pfirewall.log Missing</div>
+                    </div>
+                </div>
+
+                <!-- Threat Actor Identity Block -->
+                <div class="bg-cyber-card border border-red-900/40 p-3 rounded flex items-center justify-between font-mono text-xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-sm">
+                            <i class="fa-solid fa-user-ninja"></i>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold">Primary Attacker IP</div>
+                            <div class="text-cyber-amber text-xs font-mono">77.90.185.30</div>
+                        </div>
+                    </div>
+                    <span class="bg-red-500/20 text-red-400 text-[10px] px-2 py-0.5 rounded font-bold">BRUTE FORCE / C2</span>
+                </div>
+
+            </div>
+
+            <!-- Static Ransomware File Visualization (Center Column) -->
+            <div class="col-span-12 lg:col-span-5 hud-card reticle-corner p-4 rounded flex flex-col justify-between min-h-[320px]">
+                <div class="flex items-center justify-between text-xs font-mono">
+                    <span class="text-cyber-cyan font-bold"><i class="fa-solid fa-file-shield mr-1.5"></i> ENCRYPTED ASSET ANALYSIS</span>
+                    <span class="text-red-500 text-[10px] flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px]"></i> RANSOMWARE SIGNATURE CONFIRMED</span>
+                </div>
+                
+                <!-- Inline SVG Tactical File Scan Container -->
+                <div class="relative w-full flex-grow my-2 flex items-center justify-center overflow-hidden bg-slate-950/50 rounded border border-slate-800/50">
+                    <svg viewBox="0 0 800 600" class="w-full h-full max-h-64" preserveAspectRatio="xMidYMid meet">
+                        <defs>
+                            <!-- Red Glow Filter for Lock -->
+                            <filter id="redGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="4" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                            <!-- Tactical Grid Pattern -->
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5" stroke-opacity="0.3"/>
+                            </pattern>
+                        </defs>
+
+                        <!-- Background Grid -->
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+
+                        <!-- Document Outline (Slate Grey) -->
+                        <path d="M 250 120 L 480 120 L 550 190 L 550 480 L 250 480 Z" fill="#0f172a" fill-opacity="0.6" stroke="#475569" stroke-width="2" />
+                        <path d="M 480 120 L 480 190 L 550 190" fill="none" stroke="#475569" stroke-width="2" />
+
+                        <!-- Document Lines (Original Data) -->
+                        <line x1="290" y1="220" x2="510" y2="220" stroke="#475569" stroke-width="4" stroke-dasharray="10 5" />
+                        <line x1="290" y1="250" x2="480" y2="250" stroke="#475569" stroke-width="4" stroke-dasharray="10 5" />
+                        <line x1="290" y1="280" x2="510" y2="280" stroke="#475569" stroke-width="4" stroke-dasharray="10 5" />
+                        <line x1="290" y1="310" x2="450" y2="310" stroke="#475569" stroke-width="4" stroke-dasharray="10 5" />
+
+                        <!-- Red Encryption Overlay (Binary) -->
+                        <text x="270" y="380" fill="#ef4444" font-size="14" font-family="monospace" opacity="0.8">01001000 01100101 01101100 01110000</text>
+                        <text x="270" y="410" fill="#ef4444" font-size="14" font-family="monospace" opacity="0.8">01101101 01100101 00100000 01001110</text>
+                        <text x="270" y="440" fill="#ef4444" font-size="14" font-family="monospace" opacity="0.8">01101111 01110111 00100000 01000101</text>
+
+                        <!-- Red Padlock Icon (Center) -->
+                        <g transform="translate(400, 260) scale(1.8)" filter="url(#redGlow)">
+                            <!-- Shackle -->
+                            <path d="M -20 -20 L -20 -40 C -20 -55, 20 -55, 20 -40 L 20 -20" fill="none" stroke="#ef4444" stroke-width="6" />
+                            <!-- Body -->
+                            <rect x="-30" y="-20" width="60" height="45" rx="4" fill="#7f1d1d" stroke="#ef4444" stroke-width="3" />
+                            <!-- Keyhole -->
+                            <circle cx="0" cy="-5" r="6" fill="#ef4444" />
+                            <path d="M -4 -5 L -6 15 L 6 15 L 4 -5 Z" fill="#ef4444" />
+                        </g>
+
+                        <!-- Warning Banner -->
+                        <rect x="250" y="130" width="300" height="30" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="1" />
+                        <text x="400" y="150" fill="#ef4444" font-size="14" font-weight="bold" font-family="monospace" text-anchor="middle" letter-spacing="2">AES-256 ENCRYPTED</text>
+                    </svg>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 text-[10px] font-mono text-center bg-slate-950/80 p-2 rounded border border-slate-800">
+                    <div>
+                        <span class="text-slate-400">ORIGIN:</span>
+                        <span class="text-red-500 font-bold block">77.90.185.30</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">TARGET:</span>
+                        <span class="text-cyber-amber font-bold block">10.0.0.112</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">PROTOCOL:</span>
+                        <span class="text-cyber-cyan font-bold block">TCP / 3306</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Profile Card (Right Column) -->
+            <div class="col-span-12 lg:col-span-3 hud-card reticle-corner p-4 rounded flex flex-col justify-between">
+                <div class="text-xs font-mono text-cyber-amber font-bold tracking-wider uppercase border-b border-slate-800 pb-2 flex items-center justify-between">
+                    <span><i class="fa-solid fa-server mr-1.5"></i> Target Environment Profile</span>
+                    <span class="text-slate-500">CORP-1-US</span>
+                </div>
+
+                <div class="space-y-2 font-mono text-xs my-2">
+                    <div class="flex justify-between border-b border-slate-800/60 pb-1">
+                        <span class="text-slate-400">Host Name:</span>
+                        <strong class="text-white">CORP-1-US</strong>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800/60 pb-1">
+                        <span class="text-slate-400">Domain:</span>
+                        <span class="text-slate-300">WORKGROUP (VM)</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800/60 pb-1">
+                        <span class="text-slate-400">IP Address:</span>
+                        <span class="text-cyber-amber font-bold">10.0.0.112 /21</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800/60 pb-1">
+                        <span class="text-slate-400">Gateway:</span>
+                        <span class="text-slate-300">10.0.0.1</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800/60 pb-1">
+                        <span class="text-slate-400">MAC Address:</span>
+                        <span class="text-slate-300">7C-1E-52-B1-FD-13</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800/60 pb-1">
+                        <span class="text-slate-400">Azure VIP:</span>
+                        <span class="text-cyber-cyan">168.63.129.16</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800/60 pb-1">
+                        <span class="text-slate-400">Target Process:</span>
+                        <span class="text-red-400 font-bold">mysqld.exe (PID 4448)</span>
+                    </div>
+                </div>
+
+                <div class="bg-red-500/10 border border-red-500/30 p-2 rounded text-[10px] font-mono text-red-300 flex items-center gap-2">
+                    <i class="fa-solid fa-radiation text-red-400 text-sm"></i>
+                    <span>Ransom Schema: <strong>recover_your_data</strong></span>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ================= PART 1: EXECUTIVE BRIEFING & INCIDENT RECONSTRUCTION ================= -->
+        <section id="executive-summary" class="space-y-4 pt-4">
+            <div class="border-l-4 border-cyber-amber pl-3 flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-orbitron font-bold text-white tracking-wide">PART 1: EXECUTIVE BRIEFING & INCIDENT RECONSTRUCTION</h2>
+                    <p class="text-xs text-slate-400 font-mono">Comprehensive DFIR Analysis, System Context, Chronology, and Root Cause Analysis</p>
+                </div>
+                <span class="font-mono text-xs text-cyber-amber bg-cyber-amber/10 px-2.5 py-1 rounded border border-cyber-amber/30">1.1 - 1.4</span>
+            </div>
+
+            <!-- 1.1 Executive Overview & 1.2 System Context -->
+            <div class="grid grid-cols-12 gap-4">
+                
+                <div class="col-span-12 lg:col-span-6 hud-card p-5 rounded space-y-3">
+                    <h3 class="text-xs font-mono text-cyber-amber font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-file-shield text-sm"></i> 1.1 Executive Overview & High-Level Summary
+                    </h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        A comprehensive digital forensics and incident response (DFIR) investigation was conducted on host 
+                        <strong class="text-white">CORP-1-US</strong> following alerts indicating database operational anomalies and unauthorized external administrative access.
+                    </p>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        The evaluation confirms that host <strong class="text-white">CORP-1-US</strong> suffered a successful external intrusion resulting in database credential compromise, systematic data exfiltration, database deletion (<code class="text-red-400 bg-slate-950 px-1 py-0.5 rounded">DROP DATABASE</code>), extortion artifact injection, anti-forensic audit purging, and post-exploitation persistence staging.
+                    </p>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        The primary root cause was an unsegmented, publicly listening MySQL database daemon (<code class="text-cyber-amber bg-slate-950 px-1 py-0.5 rounded">mysqld.exe</code>) bound to <code class="text-cyber-amber bg-slate-950 px-1 py-0.5 rounded">0.0.0.0:3306</code> combined with permissive wildcard access controls (<code class="text-red-400 bg-slate-950 px-1 py-0.5 rounded">'root'@'%'</code>) and disabled host-level firewall logging.
+                    </p>
+                </div>
+
+                <!-- 1.2 System Context & Host Profile Table -->
+                <div class="col-span-12 lg:col-span-6 hud-card p-5 rounded space-y-3">
+                    <h3 class="text-xs font-mono text-cyber-cyan font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-sm"></i> 1.2 System Context & Host Profile Table
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-mono text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
+                                    <th class="p-2">System Attribute</th>
+                                    <th class="p-2">Configuration / Property Detail</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60">
+                                <tr>
+                                    <td class="p-2 text-slate-400 font-bold">Host Name</td>
+                                    <td class="p-2 text-white font-bold">CORP-1-US</td>
+                                </tr>
+                                <tr class="bg-slate-950/40">
+                                    <td class="p-2 text-slate-400 font-bold">Domain Context</td>
+                                    <td class="p-2 text-slate-300">WORKGROUP (Standalone Cloud Virtual Machine)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 text-slate-400 font-bold">Primary IPv4 Address</td>
+                                    <td class="p-2 text-cyber-amber font-bold">10.0.0.112 (Subnet: 255.255.248.0 /21)</td>
+                                </tr>
+                                <tr class="bg-slate-950/40">
+                                    <td class="p-2 text-slate-400 font-bold">Default Gateway</td>
+                                    <td class="p-2 text-slate-300">10.0.0.1</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 text-slate-400 font-bold">MAC Address</td>
+                                    <td class="p-2 text-slate-300">7C-1E-52-B1-FD-13</td>
+                                </tr>
+                                <tr class="bg-slate-950/40">
+                                    <td class="p-2 text-slate-400 font-bold">DNS / DHCP Infrastructure</td>
+                                    <td class="p-2 text-cyber-cyan">168.63.129.16 (Azure Infrastructure VIP)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 text-slate-400 font-bold">Primary Cloud Suffix</td>
+                                    <td class="p-2 text-slate-400 text-[11px]">p2zfvso05mlezjev3ck4vqd3kd.cx.internal.cloudapp.net</td>
+                                </tr>
+                                <tr class="bg-slate-950/40">
+                                    <td class="p-2 text-slate-400 font-bold">Primary Database Service</td>
+                                    <td class="p-2 text-red-400 font-bold">MySQL Server 8.0 (mysqld.exe, PID 4448)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 1.3 Chronological Incident Lifecycle Timeline -->
+            <div class="hud-card p-5 rounded space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h3 class="text-xs font-mono text-cyber-amber font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-timeline text-sm"></i> 1.3 Chronological Incident Lifecycle
+                    </h3>
+                    <span class="font-mono text-[10px] text-slate-500">INCIDENT TIMELINE RECONSTRUCTION</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 font-mono text-xs">
+                    
+                    <!-- Phase 1 -->
+                    <div class="bg-slate-950/80 border-t-2 border-cyber-amber p-3 rounded flex flex-col justify-between">
+                        <div>
+                            <span class="text-cyber-amber font-bold text-[11px] block">PHASE 1</span>
+                            <span class="text-white font-bold text-xs block my-1">Surface Exposure & Attack Surface Mapping</span>
+                            <span class="text-[10px] text-slate-400 block mb-2"><i class="fa-regular fa-clock mr-1"></i>Sep 19 (~15:20 UTC)</span>
+                            <p class="text-[11px] text-slate-300 font-sans leading-relaxed">
+                                MySQL daemon bound to <code class="text-cyber-amber">0.0.0.0:3306</code> and <code class="text-cyber-amber">[::]:33060</code>. Administrative user configured with <code class="text-red-400">'root'@'%'</code>. Absence of host firewall rules permitted direct WAN handshakes.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Phase 2 -->
+                    <div class="bg-slate-950/80 border-t-2 border-cyber-amber p-3 rounded flex flex-col justify-between">
+                        <div>
+                            <span class="text-cyber-amber font-bold text-[11px] block">PHASE 2</span>
+                            <span class="text-white font-bold text-xs block my-1">High-Velocity Credential Brute-Force</span>
+                            <span class="text-[10px] text-slate-400 block mb-2"><i class="fa-regular fa-clock mr-1"></i>Sep 19 (15:20-17:15 UTC)</span>
+                            <p class="text-[11px] text-slate-300 font-sans leading-relaxed">
+                                External connection requests flooded from threat actor IPs <code class="text-red-400">77.90.185.30</code>, <code class="text-red-400">77.90.185.21</code>, and <code class="text-red-400">64.89.163.178</code>. Derived root handle credentials over TCP 3306.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3 -->
+                    <div class="bg-slate-950/80 border-t-2 border-red-500 p-3 rounded flex flex-col justify-between">
+                        <div>
+                            <span class="text-red-400 font-bold text-[11px] block">PHASE 3</span>
+                            <span class="text-white font-bold text-xs block my-1">Schema Exfiltration & Extortion</span>
+                            <span class="text-[10px] text-slate-400 block mb-2"><i class="fa-regular fa-clock mr-1"></i>Sep 19 (17:15 - 17:16 UTC)</span>
+                            <p class="text-[11px] text-slate-300 font-sans leading-relaxed">
+                                Cataloged production schemas (<code class="text-slate-200">lnp_corp</code>, <code class="text-slate-200">corp_doc_01</code>, <code class="text-slate-200">world</code>, <code class="text-slate-200">sakila</code>). Executed bulk <code class="text-cyber-amber">SELECT *</code> queries followed by <code class="text-red-400">DROP DATABASE</code> and created ransom schema <code class="text-red-400">recover_your_data</code>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Phase 4 -->
+                    <div class="bg-slate-950/80 border-t-2 border-cyber-amber p-3 rounded flex flex-col justify-between">
+                        <div>
+                            <span class="text-cyber-amber font-bold text-[11px] block">PHASE 4</span>
+                            <span class="text-white font-bold text-xs block my-1">Anti-Forensic Purging & Trace Removal</span>
+                            <span class="text-[10px] text-slate-400 block mb-2"><i class="fa-regular fa-clock mr-1"></i>Sep 19 (17:17 UTC)</span>
+                            <p class="text-[11px] text-slate-300 font-sans leading-relaxed">
+                                Cleared binary transaction logging (<code class="text-cyber-amber">RESET MASTER; PURGE BINARY LOGS</code>). Verified absence of <code class="text-slate-200">pfirewall.log</code> and flushed DNS resolver cache (<code class="text-slate-200">ipconfig /flushdns</code>).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Phase 5 -->
+                    <div class="bg-slate-950/80 border-t-2 border-cyber-green p-3 rounded flex flex-col justify-between">
+                        <div>
+                            <span class="text-cyber-green font-bold text-[11px] block">PHASE 5</span>
+                            <span class="text-white font-bold text-xs block my-1">Local Discovery & Shim Persistence</span>
+                            <span class="text-[10px] text-slate-400 block mb-2"><i class="fa-regular fa-clock mr-1"></i>Sep 20 (Post-Breach)</span>
+                            <p class="text-[11px] text-slate-300 font-sans leading-relaxed">
+                                Leveraged local administrative access for system enumeration (<code class="text-slate-200">secedit.exe</code>, <code class="text-slate-200">quser.exe</code>). Executed <code class="text-cyber-green">sdbinst.exe -m -bg</code> to install custom Application Compatibility Shim for stealth persistence.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 1.4 Root Vulnerability Analysis Diagram -->
+            <div class="hud-card p-5 rounded space-y-3">
+                <h3 class="text-xs font-mono text-cyber-amber font-bold tracking-wider uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-sitemap text-sm"></i> 1.4 Root Vulnerability Analysis & Exploit Flow
+                </h3>
+                
+                <div class="bg-slate-950 p-4 rounded border border-slate-800 font-mono text-xs overflow-x-auto">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-3 text-center min-w-[700px]">
+                        
+                        <div class="bg-slate-900 border border-slate-700 p-3 rounded flex-1">
+                            <span class="text-slate-400 text-[10px] block">EXTERNAL WAN</span>
+                            <strong class="text-white">Public Internet</strong>
+                            <span class="text-red-400 text-[10px] block mt-1">TCP Port 3306 Unrestricted</span>
+                        </div>
+
+                        <i class="fa-solid fa-arrow-right text-cyber-amber"></i>
+
+                        <div class="bg-slate-900 border border-red-900/60 p-3 rounded flex-1">
+                            <span class="text-red-400 text-[10px] block font-bold">[FAIL] FIREWALL POLICY</span>
+                            <strong class="text-white">Windows Firewall</strong>
+                            <span class="text-slate-400 text-[10px] block mt-1">pfirewall.log Disabled / Missing</span>
+                        </div>
+
+                        <i class="fa-solid fa-arrow-right text-cyber-amber"></i>
+
+                        <div class="bg-slate-900 border border-red-900/60 p-3 rounded flex-1">
+                            <span class="text-red-400 text-[10px] block font-bold">[FAIL] SERVICE BINDING</span>
+                            <strong class="text-white">MySQL Daemon (mysqld.exe)</strong>
+                            <span class="text-cyber-amber text-[10px] block mt-1">Bound to 0.0.0.0 (All Adapters)</span>
+                        </div>
+
+                        <i class="fa-solid fa-arrow-right text-cyber-amber"></i>
+
+                        <div class="bg-slate-900 border border-red-900/60 p-3 rounded flex-1">
+                            <span class="text-red-400 text-[10px] block font-bold">[FAIL] AUTH PERMISSIONS</span>
+                            <strong class="text-white">MySQL Accounts</strong>
+                            <span class="text-red-400 text-[10px] block mt-1">'root'@'%' Wildcard Grant</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs pt-2">
+                    <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800">
+                        <strong class="text-cyber-amber block mb-1">Unrestricted Service Interface Binding:</strong>
+                        <p class="text-slate-400 text-[11px] font-sans">Default configuration files (<code class="text-slate-200">my.ini</code>) lacked explicit loopback bindings (<code class="text-slate-200">bind-address = 127.0.0.1</code>), permitting wide open remote interface listening.</p>
+                    </div>
+                    <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800">
+                        <strong class="text-cyber-amber block mb-1">Wildcard Database Grant:</strong>
+                        <p class="text-slate-400 text-[11px] font-sans">Granting <code class="text-slate-200">'root'@'%'</code> administrative privileges bypassed local-only security boundaries and allowed network-wide authentication attempts.</p>
+                    </div>
+                    <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800">
+                        <strong class="text-cyber-amber block mb-1">Absence of Inbound Firewall Rules:</strong>
+                        <p class="text-slate-400 text-[11px] font-sans">Host firewall lacked network layer restriction rules for TCP port 3306, exposing the MySQL engine directly to public IP scanners.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ================= PART 2: FORENSIC TELEMETRY & ARTIFACT DEEP-DIVE ================= -->
+        <section id="forensic-telemetry" class="space-y-4 pt-6">
+            <div class="border-l-4 border-cyber-cyan pl-3 flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-orbitron font-bold text-white tracking-wide">PART 2: FORENSIC TELEMETRY & ARTIFACT DEEP-DIVE</h2>
+                    <p class="text-xs text-slate-400 font-mono">Active Sockets, Prefetch Binary Analysis, Network Configurations, and Anti-Forensics Audit</p>
+                </div>
+                <span class="font-mono text-xs text-cyber-cyan bg-cyber-cyan/10 px-2.5 py-1 rounded border border-cyber-cyan/30">2.1 - 2.4</span>
+            </div>
+
+            <!-- 2.1 Active Network Connections Table -->
+            <div class="hud-card p-5 rounded space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h3 class="text-xs font-mono text-cyber-cyan font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-network-wired text-sm"></i> 2.1 Active Network Connections & Socket Analysis (ActiveNetConnections.txt)
+                    </h3>
+                    <span class="font-mono text-[10px] text-slate-500">LIVE RESPONSES ARTIFACT PARSING</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
+                                <th class="p-2">Proto</th>
+                                <th class="p-2">Local Address</th>
+                                <th class="p-2">Foreign Address</th>
+                                <th class="p-2">State</th>
+                                <th class="p-2">PID</th>
+                                <th class="p-2">Image Path / Service</th>
+                                <th class="p-2">Forensic Assessment</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60">
+                            <tr class="bg-red-500/10">
+                                <td class="p-2 text-cyber-amber font-bold">TCP</td>
+                                <td class="p-2 text-red-400 font-bold">0.0.0.0:3306</td>
+                                <td class="p-2 text-slate-400">0.0.0.0:0</td>
+                                <td class="p-2 text-cyber-green">LISTENING</td>
+                                <td class="p-2 text-white">4448</td>
+                                <td class="p-2 text-white font-bold">mysqld.exe</td>
+                                <td class="p-2 text-red-300 font-sans text-[11px]"><strong class="text-red-400">CRITICAL EXPOSURE.</strong> Exposed MySQL service listening on all IPv4 interfaces.</td>
+                            </tr>
+                            <tr class="bg-red-500/10">
+                                <td class="p-2 text-cyber-amber font-bold">TCP</td>
+                                <td class="p-2 text-red-400 font-bold">[::]:33060</td>
+                                <td class="p-2 text-slate-400">[::]:0</td>
+                                <td class="p-2 text-cyber-green">LISTENING</td>
+                                <td class="p-2 text-white">4448</td>
+                                <td class="p-2 text-white font-bold">mysqld.exe</td>
+                                <td class="p-2 text-red-300 font-sans text-[11px]"><strong class="text-red-400">CRITICAL EXPOSURE.</strong> MySQL X Protocol exposed on all IPv6 interfaces.</td>
+                            </tr>
+                            <tr class="bg-amber-500/10">
+                                <td class="p-2 text-cyber-amber font-bold">TCP</td>
+                                <td class="p-2 text-amber-400 font-bold">0.0.0.0:3389</td>
+                                <td class="p-2 text-slate-400">0.0.0.0:0</td>
+                                <td class="p-2 text-cyber-green">LISTENING</td>
+                                <td class="p-2 text-white">3724</td>
+                                <td class="p-2 text-slate-200">svchost.exe (TermService)</td>
+                                <td class="p-2 text-amber-300 font-sans text-[11px]"><strong class="text-amber-400">HIGH RISK.</strong> Remote Desktop Protocol listening publicly without host access lists.</td>
+                            </tr>
+                            <tr class="bg-amber-500/10">
+                                <td class="p-2 text-cyber-amber font-bold">TCP</td>
+                                <td class="p-2 text-amber-400 font-bold">0.0.0.0:445</td>
+                                <td class="p-2 text-slate-400">0.0.0.0:0</td>
+                                <td class="p-2 text-cyber-green">LISTENING</td>
+                                <td class="p-2 text-white">4</td>
+                                <td class="p-2 text-slate-200">System (SMB)</td>
+                                <td class="p-2 text-amber-300 font-sans text-[11px]"><strong class="text-amber-400">HIGH RISK.</strong> Server Message Block listening publicly.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-cyber-amber">TCP</td>
+                                <td class="p-2 text-slate-300">0.0.0.0:135</td>
+                                <td class="p-2 text-slate-400">0.0.0.0:0</td>
+                                <td class="p-2 text-cyber-green">LISTENING</td>
+                                <td class="p-2 text-white">516</td>
+                                <td class="p-2 text-slate-300">svchost.exe (RpcEptMapper)</td>
+                                <td class="p-2 text-slate-400 font-sans text-[11px]">Standard RPC Endpoint Mapper active.</td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2 text-cyber-amber">TCP</td>
+                                <td class="p-2 text-slate-300">127.0.0.1:49689</td>
+                                <td class="p-2 text-slate-300">127.0.0.1:49690</td>
+                                <td class="p-2 text-cyber-amber">ESTABLISHED</td>
+                                <td class="p-2 text-white">4448</td>
+                                <td class="p-2 text-slate-300">mysqld.exe</td>
+                                <td class="p-2 text-slate-400 font-sans text-[11px]">Local loopback database query IPC session.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-cyber-amber">TCP</td>
+                                <td class="p-2 text-slate-300">127.0.0.1:28230</td>
+                                <td class="p-2 text-slate-400">0.0.0.0:0</td>
+                                <td class="p-2 text-cyber-green">LISTENING</td>
+                                <td class="p-2 text-white">6828</td>
+                                <td class="p-2 text-slate-300">MonAgentCore.exe</td>
+                                <td class="p-2 text-slate-400 font-sans text-[11px]">Azure Monitor Core Telemetry Agent.</td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2 text-cyber-amber">TCP</td>
+                                <td class="p-2 text-slate-300">127.0.0.1:49764</td>
+                                <td class="p-2 text-slate-300">127.0.0.1:49765</td>
+                                <td class="p-2 text-cyber-amber">ESTABLISHED</td>
+                                <td class="p-2 text-white">6820</td>
+                                <td class="p-2 text-slate-300">fluent-bit.exe</td>
+                                <td class="p-2 text-slate-400 font-sans text-[11px]">Log forwarding agent loopback stream (High density).</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-cyber-cyan">UDP</td>
+                                <td class="p-2 text-slate-300">127.0.0.1:55368</td>
+                                <td class="p-2 text-slate-400">*:*</td>
+                                <td class="p-2 text-cyber-green">LISTENING</td>
+                                <td class="p-2 text-white">5212</td>
+                                <td class="p-2 text-slate-300">MsSense.exe</td>
+                                <td class="p-2 text-slate-400 font-sans text-[11px]">Microsoft Defender Network Detection & Response Agent.</td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2 text-cyber-amber">TCP</td>
+                                <td class="p-2 text-slate-300">10.0.0.112:49686</td>
+                                <td class="p-2 text-cyber-cyan">168.63.129.16:32526</td>
+                                <td class="p-2 text-cyber-amber">ESTABLISHED</td>
+                                <td class="p-2 text-white">3620</td>
+                                <td class="p-2 text-slate-300">WindowsAzureGuestAgent.exe</td>
+                                <td class="p-2 text-slate-400 font-sans text-[11px]">Legitimate Azure Infrastructure Agent communication.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2.2 Prefetch Execution Analysis & Categories -->
+            <div class="hud-card p-5 rounded space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h3 class="text-xs font-mono text-cyber-cyan font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-microchip text-sm"></i> 2.2 Prefetch Execution Analysis (.pf Binary Logs)
+                    </h3>
+                    <span class="font-mono text-[10px] text-slate-500">PREFETCH FORENSICS</span>
+                </div>
+
+                <div class="bg-cyber-amber/10 border border-cyber-amber/30 p-3 rounded font-mono text-xs text-slate-300">
+                    <span class="text-cyber-amber font-bold"><i class="fa-solid fa-circle-info mr-1"></i> Technical Note on Prefetch Parsing:</span>
+                    Windows 10/11 Prefetch binaries stored in <code class="text-white">C:\Windows\Prefetch\</code> utilize MAM (XPRESS) compression. Direct opening in text editors yields unreadable binary data. Forensic analysis required parsing via tools such as <code class="text-cyber-amber">PECmd.exe</code> or <code class="text-cyber-amber">libscca</code>.
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
+                                <th class="p-2.5 w-1/3">Category</th>
+                                <th class="p-2.5 w-2/3">Executable Artifacts Identified (.pf)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60">
+                            <tr>
+                                <td class="p-2.5 text-cyber-amber font-bold">System Reconnaissance & Network</td>
+                                <td class="p-2.5 text-slate-200">
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">IPCONFIG.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">NET.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">NET1.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">NETSH.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">NETSTAT.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">ROUTE.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">HOSTNAME.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">QUSER.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">QUERY.EXE</code>
+                                </td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2.5 text-cyber-cyan font-bold">System Administration & Policy</td>
+                                <td class="p-2.5 text-slate-200">
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">POWERSHELL.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">REG.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">SC.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">SCHTASKS.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">SECEDIT.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">FLTMC.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">LOGMAN.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MOFCOMP.EXE</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 text-cyber-green font-bold">Persistence & Shim Installation</td>
+                                <td class="p-2.5 text-slate-200">
+                                    <code class="bg-cyber-green/10 border border-cyber-green/40 text-cyber-green font-bold px-2 py-0.5 rounded mr-1 inline-block">SDBINST.EXE</code>
+                                </td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2.5 text-red-400 font-bold">Database Infrastructure</td>
+                                <td class="p-2.5 text-slate-200">
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MYSQLD.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MYSQLDUMP.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MYSQLSH.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MYSQLWORKBENCH.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MYSQLINSTALLER.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MYSQLINSTALLERLAUNCHER.EXE</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 text-slate-400 font-bold">Execution Hosts & Utilities</td>
+                                <td class="p-2.5 text-slate-200">
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">RUNDLL32.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">RUNTIMEBROKER.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">FIND.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">FINDSTR.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">FINDVOLUME.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">FSUTIL.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">ROBOCOPY.EXE</code>
+                                </td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2.5 text-slate-400 font-bold">Security & Endpoint Subsystems</td>
+                                <td class="p-2.5 text-slate-200">
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MSSENSE.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MSMPENG.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">MPCMDRUN.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">SENSEIR.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">SENSEIMDSCOLLECTOR.EXE</code>
+                                    <code class="bg-slate-900 border border-slate-800 text-slate-300 px-1.5 py-0.5 rounded mr-1 inline-block my-0.5">SECURITYHEALTHSERVICE.EXE</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2.3 & 2.4 Host Network State & Anti-Forensics Analysis -->
+            <div class="grid grid-cols-12 gap-4">
+                
+                <div class="col-span-12 lg:col-span-6 hud-card p-5 rounded space-y-3">
+                    <h3 class="text-xs font-mono text-cyber-cyan font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-ethernet text-sm"></i> 2.3 Host Network & Firewall State
+                    </h3>
+                    <div class="space-y-2 font-sans text-xs">
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <strong class="text-white font-mono block mb-1">Network Configuration (IpConfig.txt):</strong>
+                            <p class="text-slate-300">Host operates on <code class="text-cyber-amber font-mono">10.0.0.112</code> with subnet mask <code class="text-slate-200 font-mono">255.255.248.0</code>. Primary DNS and DHCP servers are configured as <code class="text-cyber-cyan font-mono">168.63.129.16</code> (Azure Cloud Platform Infrastructure VIP).</p>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <strong class="text-white font-mono block mb-1">ARP Table Resolution (Arp.txt):</strong>
+                            <p class="text-slate-300">Shows direct gateway physical address resolution for <code class="text-slate-200 font-mono">10.0.0.1</code> mapped to MAC <code class="text-slate-200 font-mono">12-34-56-78-9a-bc</code>, alongside static multicast broadcast entries (<code class="text-slate-400 font-mono">224.0.0.22</code>, <code class="text-slate-400 font-mono">239.255.255.250</code>).</p>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded border border-red-900/60">
+                            <strong class="text-red-400 font-mono block mb-1">Firewall Logging Staging Defect (FirewallExecutionLog.txt):</strong>
+                            <p class="text-slate-300">Diagnostic copy attempts for <code class="text-slate-200 font-mono">%systemroot%\system32\LogFiles\Firewall\pfirewall.log</code> failed with error <code class="text-red-400 font-mono">File not found - pfirewall.log</code>, confirming host-based packet logging was disabled.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-6 hud-card p-5 rounded space-y-3">
+                    <h3 class="text-xs font-mono text-cyber-amber font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-broom text-sm"></i> 2.4 Anti-Forensics & Audit Interruption
+                    </h3>
+                    <div class="space-y-2 font-sans text-xs">
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <strong class="text-cyber-amber font-mono block mb-1">DNS Resolver Cache Suppression (DnsCache.txt):</strong>
+                            <p class="text-slate-300">Execution of <code class="text-slate-200 font-mono">ipconfig /displaydns</code> returned 0 active entries. This confirms an intentional DNS cache flush (<code class="text-red-400 font-mono">ipconfig /flushdns</code>) conducted post-exfiltration to eliminate domain resolution traces.</p>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <strong class="text-cyber-amber font-mono block mb-1">Database Transaction Log Destruction:</strong>
+                            <p class="text-slate-300">Invalidation of MySQL point-in-time recovery mechanisms was achieved via explicit SQL commands (<code class="text-red-400 font-mono">RESET MASTER;</code> and <code class="text-red-400 font-mono">PURGE BINARY LOGS TO 'josh-mde-lab-bin.000001';</code>) designed to prevent transactional rollback.</p>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <strong class="text-cyber-amber font-mono block mb-1">Audit Trail Blinding:</strong>
+                            <p class="text-slate-300">The combination of disabled firewall logs and binary log purges severely restricted direct byte-level measurement of exfiltrated data volumes during the breach window.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PART 3: THREAT INTELLIGENCE, MITRE ATT&CK & CONTAINMENT PLAYBOOK ================= -->
+        <section id="threat-intelligence" class="space-y-4 pt-6">
+            <div class="border-l-4 border-cyber-green pl-3 flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-orbitron font-bold text-white tracking-wide">PART 3: THREAT INTELLIGENCE, MITRE ATT&CK & CONTAINMENT PLAYBOOK</h2>
+                    <p class="text-xs text-slate-400 font-mono">ATT&CK Matrix, IoC Vault, Hardening Scripts, and Forensic Limitations</p>
+                </div>
+                <span class="font-mono text-xs text-cyber-green bg-cyber-green/10 px-2.5 py-1 rounded border border-cyber-green/30">3.1 - 3.4</span>
+            </div>
+
+            <!-- 3.1 MITRE ATT&CK Mapping Table -->
+            <div class="hud-card p-5 rounded space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h3 class="text-xs font-mono text-cyber-green font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-sm"></i> 3.1 Complete MITRE ATT&CK Mapping Matrix
+                    </h3>
+                    <span class="font-mono text-[10px] text-slate-500">ATT&CK V14 MATRIX</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950 border-b border-slate-800 text-slate-400">
+                                <th class="p-2">Tactic</th>
+                                <th class="p-2">Technique ID</th>
+                                <th class="p-2">Technique Name</th>
+                                <th class="p-2">Evidence / Artifact Citation</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60">
+                            <tr>
+                                <td class="p-2 text-cyber-amber font-bold">Initial Access</td>
+                                <td class="p-2 text-cyber-cyan">T1190</td>
+                                <td class="p-2 text-white">Exploit Public Application</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Unprotected <code class="text-cyber-amber font-mono">mysqld.exe</code> binding on <code class="text-cyber-amber font-mono">0.0.0.0:3306</code></td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2 text-cyber-amber font-bold">Credential Access</td>
+                                <td class="p-2 text-cyber-cyan">T1110.001</td>
+                                <td class="p-2 text-white">Password Guessing</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">High-volume authentication failure flood from <code class="text-red-400 font-mono">77.90.185.30</code> targeting <code class="text-slate-200 font-mono">root</code></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-cyber-amber font-bold">Discovery</td>
+                                <td class="p-2 text-cyber-cyan">T1087.001</td>
+                                <td class="p-2 text-white">Local Account Discovery</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Executed <code class="text-slate-200 font-mono">net.exe</code>, <code class="text-slate-200 font-mono">quser.exe</code>, <code class="text-slate-200 font-mono">query.exe</code></td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2 text-cyber-amber font-bold">Discovery</td>
+                                <td class="p-2 text-cyber-cyan">T1049</td>
+                                <td class="p-2 text-white">Network Connection Discovery</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Executed <code class="text-slate-200 font-mono">netstat.exe</code>, <code class="text-slate-200 font-mono">ipconfig.exe</code>, <code class="text-slate-200 font-mono">route.exe</code></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-cyber-amber font-bold">Discovery</td>
+                                <td class="p-2 text-cyber-cyan">T1201</td>
+                                <td class="p-2 text-white">Password Policy Discovery</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Executed <code class="text-slate-200 font-mono">secedit.exe /export /cfg</code></td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2 text-cyber-green font-bold">Persistence</td>
+                                <td class="p-2 text-cyber-cyan">T1546.011</td>
+                                <td class="p-2 text-white">Application Shim Database</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Executed <code class="text-cyber-green font-mono">sdbinst.exe -m -bg</code> for persistence</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-red-400 font-bold">Defense Evasion</td>
+                                <td class="p-2 text-cyber-cyan">T1562.002</td>
+                                <td class="p-2 text-white">Disable Windows Firewall Logs</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Missing <code class="text-slate-200 font-mono">pfirewall.log</code> audit file</td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2 text-red-400 font-bold">Defense Evasion</td>
+                                <td class="p-2 text-cyber-cyan">T1070.006</td>
+                                <td class="p-2 text-white">Clean Log Files</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Executed <code class="text-red-400 font-mono">RESET MASTER;</code> and <code class="text-slate-200 font-mono">ipconfig /flushdns</code></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-red-400 font-bold">Exfiltration</td>
+                                <td class="p-2 text-cyber-cyan">T1041</td>
+                                <td class="p-2 text-white">Exfiltration Over C2/WAN</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Executed bulk <code class="text-cyber-amber font-mono">SELECT *</code> queries on sensitive credential/payment tables</td>
+                            </tr>
+                            <tr class="bg-slate-950/40">
+                                <td class="p-2 text-red-400 font-bold">Impact</td>
+                                <td class="p-2 text-cyber-cyan">T1485</td>
+                                <td class="p-2 text-white">Data Destruction</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Executed <code class="text-red-400 font-mono">DROP DATABASE</code> on <code class="text-slate-200 font-mono">lnp_corp</code>, <code class="text-slate-200 font-mono">corp_doc_01</code>, <code class="text-slate-200 font-mono">world</code></td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 text-red-400 font-bold">Impact</td>
+                                <td class="p-2 text-cyber-cyan">T1486</td>
+                                <td class="p-2 text-white">Data Encrypted for Impact</td>
+                                <td class="p-2 text-slate-300 font-sans text-[11px]">Created ransom extortion schema <code class="text-red-400 font-mono">recover_your_data</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3.2 Master IoC Vault & 3.4 Forensic Limitations -->
+            <div class="grid grid-cols-12 gap-4">
+                
+                <div class="col-span-12 lg:col-span-7 hud-card p-5 rounded space-y-3">
+                    <h3 class="text-xs font-mono text-cyber-green font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-vault text-sm"></i> 3.2 Master Indicator of Compromise (IoC) Vault
+                    </h3>
+                    
+                    <div class="space-y-2 font-mono text-xs">
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <span class="text-cyber-amber font-bold block mb-1">Network Threat Indicators (Attacker IPs):</span>
+                            <div class="flex flex-wrap gap-2 text-[11px]">
+                                <span class="bg-red-500/10 border border-red-500/40 text-red-400 px-2 py-0.5 rounded font-bold">77.90.185.30 (Primary Brute-Force & Exfil)</span>
+                                <span class="bg-red-500/10 border border-red-500/40 text-red-400 px-2 py-0.5 rounded font-bold">77.90.185.21 (Secondary Recon)</span>
+                                <span class="bg-amber-500/10 border border-amber-500/40 text-amber-400 px-2 py-0.5 rounded font-bold">64.89.163.178 (Scanner / Probe)</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <span class="text-cyber-cyan font-bold block mb-1">Account & Database Artifacts:</span>
+                            <div class="space-y-1 text-slate-300 text-[11px]">
+                                <div>• Targeted Accounts: <code class="text-white">root</code>, <code class="text-white">admin</code></div>
+                                <div>• Compromised Permissive Grant: <code class="text-red-400">'root'@'%'</code></div>
+                                <div>• Targeted Production Databases: <code class="text-slate-200">lnp_corp</code>, <code class="text-slate-200">corp_doc_01</code>, <code class="text-slate-200">world</code>, <code class="text-slate-200">sakila</code></div>
+                                <div>• Ransomware Schema: <code class="text-red-400">recover_your_data</code></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <span class="text-cyber-green font-bold block mb-1">Executable & Command-Line Indicators:</span>
+                            <div class="space-y-1 text-slate-300 text-[11px]">
+                                <div>• <code class="text-cyber-green">sdbinst.exe -m -bg</code> (Application Shim Registration)</div>
+                                <div>• <code class="text-slate-200">secedit.exe /export /cfg ...</code> (Security Policy Export)</div>
+                                <div>• <code class="text-red-400">RESET MASTER;</code> (MySQL Binary Log Purge)</div>
+                                <div>• <code class="text-red-400">PURGE BINARY LOGS TO 'josh-mde-lab-bin.000001';</code></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-5 hud-card p-5 rounded space-y-3">
+                    <h3 class="text-xs font-mono text-cyber-amber font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-sm"></i> 3.4 Forensic Gaps & Limitations
+                    </h3>
+                    <div class="space-y-3 font-sans text-xs">
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <strong class="text-white font-mono block mb-1">1. Missing Host Firewall Logs:</strong>
+                            <p class="text-slate-300">The absence of <code class="text-slate-200 font-mono">pfirewall.log</code> during the incident window prevented exact byte-level volume measurements for exfiltrated traffic across TCP port 3306.</p>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <strong class="text-white font-mono block mb-1">2. Compressed Prefetch Artifacts:</strong>
+                            <p class="text-slate-300">Raw <code class="text-slate-200 font-mono">.pf</code> binary prefetch files required offline MAM decompression (<code class="text-cyber-amber font-mono">PECmd</code>) to obtain microsecond-level execution timestamps for child processes.</p>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <strong class="text-white font-mono block mb-1">3. Flushed DNS Resolver Cache:</strong>
+                            <p class="text-slate-300">Clearing of <code class="text-slate-200 font-mono">DnsCache.txt</code> eliminated visibility into command-and-control (C2) domain name resolutions conducted prior to collection.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3.3 Strategic Remediation & Containment Playbook -->
+            <div id="containment-playbook" class="hud-card p-5 rounded space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h3 class="text-xs font-mono text-cyber-green font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-shield-virus text-sm"></i> 3.3 Strategic Remediation & Containment Playbook
+                    </h3>
+                    <span class="font-mono text-[10px] text-cyber-green font-bold bg-cyber-green/10 px-2 py-0.5 rounded border border-cyber-green/30">READY FOR DEPLOYMENT</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- Step 1 -->
+                    <div class="bg-slate-950 p-4 rounded border border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between font-mono text-xs">
+                            <strong class="text-cyber-amber">Step 1: Network Isolation & Loopback Binding</strong>
+                            <span class="text-slate-500">my.ini</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-sans">Reconfigure MySQL daemon in <code class="text-slate-200 font-mono">C:\ProgramData\MySQL\MySQL Server 8.0\my.ini</code> to bind exclusively to loopback:</p>
+                        <pre class="bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-200 overflow-x-auto"><code>[mysqld]
+bind-address = 127.0.0.1
+mysqlx-bind-address = 127.0.0.1</code></pre>
+                        <p class="text-xs text-slate-400 font-sans">Restart database service via PowerShell:</p>
+                        <pre class="bg-slate-900 p-2.5 rounded border border-slate-800 text-cyber-cyan overflow-x-auto"><code>Restart-Service -Name "MySQL80" -Force</code></pre>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-slate-950 p-4 rounded border border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between font-mono text-xs">
+                            <strong class="text-cyber-amber">Step 2: Database Privilege Revocation & Credential Reset</strong>
+                            <span class="text-slate-500">MySQL Console</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-sans">Revoke wildcard grants and re-create root restricted to localhost:</p>
+                        <pre class="bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-200 overflow-x-auto"><code>-- Drop remote administrative accounts
+DROP USER IF EXISTS 'root'@'%';
+DROP USER IF EXISTS 'admin'@'%';
+
+-- Re-create root restricted to localhost
+CREATE USER 'root'@'localhost' IDENTIFIED BY 'STRONG_COMPLEX_PASSWORD_HERE';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;</code></pre>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-slate-950 p-4 rounded border border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between font-mono text-xs">
+                            <strong class="text-cyber-amber">Step 3: Windows Host Firewall Enforcement</strong>
+                            <span class="text-slate-500">PowerShell Admin</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-sans">Block port 3306 from external subnets and enable Defender firewall logging:</p>
+                        <pre class="bg-slate-900 p-2.5 rounded border border-slate-800 text-cyber-cyan overflow-x-auto"><code># 1. Remove permissive rules
+Remove-NetFirewallRule -DisplayName "Allow_Any_MySQL_External" -ErrorAction SilentlyContinue
+
+# 2. Add explicit block rule for MySQL port 3306
+New-NetFirewallRule -DisplayName "Block_MySQL_Public_Inbound" `
+                    -Direction Inbound `
+                    -LocalPort 3306 `
+                    -Protocol TCP `
+                    -Action Block `
+                    -Enabled True
+
+# 3. Enable Defender Firewall Logging
+Set-NetFirewallProfile -Profile Domain,Private,Public `
+                       -LogAllowed True `
+                       -LogBlocked True `
+                       -LogFileName "%systemroot%\system32\LogFiles\Firewall\pfirewall.log" `
+                       -LogMaxSizeKilobytes 4096</code></pre>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="bg-slate-950 p-4 rounded border border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between font-mono text-xs">
+                            <strong class="text-cyber-amber">Step 4: Persistence Audit & Application Shim Removal</strong>
+                            <span class="text-slate-500">CMD / PowerShell</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-sans">Audit registry for unapproved shims registered via <code class="text-slate-200 font-mono">sdbinst.exe</code> and purge:</p>
+                        <pre class="bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-200 overflow-x-auto"><code>:: Enumerate registered shims in registry
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Custom" /s
+
+:: Unregister suspicious shim database files if identified
+sdbinst.exe -u "C:\Path\To\SuspiciousShim.sdb"</code></pre>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER RUNNING TICKER & BRANDING -->
+    <footer class="mt-8 border-t border-slate-800 bg-cyber-bg/90 py-3 px-4 font-mono text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4 overflow-hidden whitespace-nowrap">
+                <span class="text-cyber-amber font-bold flex items-center gap-1.5"><i class="fa-solid fa-satellite-dish animate-pulse"></i> LIVE TELEMETRY STREAM:</span>
+                <span>SYSTEM_ID: <strong class="text-slate-300">48112</strong></span>
+                <span class="text-slate-700">|</span>
+                <span>REF_ID: <strong class="text-slate-300">78454</strong></span>
+                <span class="text-slate-700">|</span>
+                <span>NODE: <strong class="text-slate-300">22991</strong></span>
+                <span class="text-slate-700">|</span>
+                <span class="text-red-400 font-bold">ATTACK_VECTOR: 77.90.185.30 -> 10.0.0.112:3306</span>
+            </div>
+            <div class="text-slate-500 text-[11px]">
+                DATAV // CYBER DEFENSE FRAMEWORK v4.2
+            </div>
+        </div>
+    </footer>
+
+    <!-- THREE.JS GLOBE RADAR CANVAS SCRIPT -->
+    <script>
+        // System Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('sys-clock').innerText = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+        }
+        setInterval(updateClock, 1000);
+
+        // 3D Particle Globe Radar Canvas Simulation
+        const canvas = document.getElementById('globeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            if (canvas.parentElement) {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight || 220;
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let rotationAngle = 0;
+
+        function drawRadarGlobe() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(canvas.width, canvas.height) * 0.38;
+
+            // Draw Wireframe Particle Grid
+            ctx.fillStyle = 'rgba(6, 182, 212, 0.4)';
+            for (let lat = -80; lat <= 80; lat += 20) {
+                const radLat = (lat * Math.PI) / 180;
+                const r = radius * Math.cos(radLat);
+                const y = centerY + radius * Math.sin(radLat);
+
+                for (let lon = 0; lon < 360; lon += 20) {
+                    const radLon = ((lon + rotationAngle) * Math.PI) / 180;
+                    const x = centerX + r * Math.sin(radLon);
+                    const z = r * Math.cos(radLon);
+
+                    if (z > -5) { // Render front hemisphere
+                        const scale = (z + radius) / (2 * radius);
+                        const dotSize = Math.max(1, scale * 2.2);
+                        ctx.beginPath();
+                        ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // Draw Threat Trajectory Arc
+            const originX = centerX - radius * 0.7;
+            const originY = centerY - radius * 0.2;
+            const targetX = centerX + radius * 0.5;
+            const targetY = centerY + radius * 0.3;
+
+            // Curved Threat Arc
+            ctx.beginPath();
+            ctx.moveTo(originX, originY);
+            ctx.quadraticCurveTo(centerX, centerY - radius * 1.1, targetX, targetY);
+            ctx.strokeStyle = '#FF6B00';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#FF6B00';
+            ctx.shadowBlur = 10;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Origin Node (Red)
+            ctx.fillStyle = '#EF4444';
+            ctx.beginPath();
+            ctx.arc(originX, originY, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Target Node (Amber)
+            ctx.fillStyle = '#FF6B00';
+            ctx.beginPath();
+            ctx.arc(targetX, targetY, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            rotationAngle += 0.4;
+            requestAnimationFrame(drawRadarGlobe);
+        }
+
+        drawRadarGlobe();
+    </script>
+</body>
 </html>
